@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Local run artifacts, cloud dumps and generated reports
+work/
+outputs/
+fresh-*.json
+*.log
+
+# Build and request bundles
+fresh-build.zip
+push-body.json
+
+# Historical probe inputs; canonical smoke inputs are committed below
+comments-*.json
+!comments-smoke-two-rows.json
+
+# Secrets
+.env
+.env.*
+
+# OS noise
+.DS_Store
+Thumbs.db

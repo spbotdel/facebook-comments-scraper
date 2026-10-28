@@ -1,0 +1,1 @@
+{"actorOutputSchemaVersion": 1, "title": "Facebook post comments output", "properties": {"results": {"type": "string", "title": "Dataset items", "template": "{{links.apiDefaultDatasetUrl}}/items"}, "summary": {"type": "string", "title": "Run summary", "template": "{{links.apiKeyValueStoreUrl}}/records/OUTPUT"}}}

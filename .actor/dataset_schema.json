@@ -1,0 +1,67 @@
+{
+  "actorSpecification": 1,
+  "title": "Facebook post comments",
+  "description": "One row per publicly served Facebook comment or reply.",
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "source_post_url": { "type": "string" },
+      "source_post_id": { "type": ["string", "null"] },
+      "input_url": { "type": ["string", "null"] },
+      "post_text": { "type": ["string", "null"] },
+      "source_comment_id": { "type": ["string", "null"] },
+      "raw_id": { "type": ["string", "null"] },
+      "decoded_id": { "type": ["string", "null"] },
+      "parent_comment_id": { "type": ["string", "null"] },
+      "depth": { "type": ["integer", "null"] },
+      "author_id": { "type": ["string", "null"] },
+      "author_name": { "type": ["string", "null"] },
+      "author_url": { "type": ["string", "null"] },
+      "author_picture": { "type": ["string", "null"] },
+      "raw_text": { "type": ["string", "null"] },
+      "extracted_urls": { "type": ["array", "null"], "items": { "type": "string" } },
+      "created_time": { "type": ["integer", "null"] },
+      "created_at": { "type": ["string", "null"] },
+      "reactions": { "type": ["integer", "null"] },
+      "likes": { "type": ["integer", "null"] },
+      "reactions_breakdown": { "type": ["object", "null"] },
+      "reply_count": { "type": ["integer", "null"] },
+      "comments_count": { "type": ["integer", "null"] },
+      "comment_url": { "type": ["string", "null"] }
+    }
+  },
+  "views": {
+    "comments": {
+      "title": "Comments",
+      "description": "Comment text, author, reactions, timestamp, thread depth, and permalink.",
+      "transformation": {
+        "fields": [
+          "comment_url",
+          "author_name",
+          "raw_text",
+          "created_at",
+          "reactions",
+          "reply_count",
+          "depth",
+          "parent_comment_id",
+          "post_text"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "comment_url": { "label": "Comment URL", "format": "link" },
+          "author_name": { "label": "Author" },
+          "raw_text": { "label": "Comment text" },
+          "created_at": { "label": "Created at", "format": "date" },
+          "reactions": { "label": "Reactions", "format": "number" },
+          "reply_count": { "label": "Replies", "format": "number" },
+          "depth": { "label": "Depth", "format": "number" },
+          "parent_comment_id": { "label": "Parent comment ID" },
+          "post_text": { "label": "Post text" }
+        }
+      }
+    }
+  }
+}

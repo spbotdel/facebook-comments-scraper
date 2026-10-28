@@ -1,0 +1,13 @@
+{
+  "postUrls": [
+    "https://www.facebook.com/groups/2333220550043074/permalink/28938326995772401/"
+  ],
+  "maxPostsPerRun": 1,
+  "maxConcurrency": 1,
+  "maxCommentsPerPost": 2,
+  "maxPagesPerPost": 1,
+  "pageDelayMs": 200,
+  "introDelayMs": 0,
+  "commentsSortOrder": "MOST_RELEVANT",
+  "proxyTier": "auto"
+}

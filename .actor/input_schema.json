@@ -1,0 +1,211 @@
+{
+  "title": "Facebook post comments",
+  "description": "Scrape publicly served comments from Facebook post URLs without cookies. One row per comment or reply, with text, author, timestamp, reactions, stable URL, coverage status, and thread linkage.",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "postUrls": {
+      "title": "Post URLs",
+      "type": "array",
+      "description": "Public Facebook URLs. Supported without login: page posts, group permalinks, story.php, and video pages. Reels, photo pages, and /watch/ are accepted for detection but Facebook does not serve their comment lists to signed-out visitors.",
+      "editor": "stringList",
+      "prefill": [
+        "https://www.facebook.com/humansofnewyork/posts/pfbid0BbKbkisExKGSKuhee9a7i86RwRuMKFC8NSkKStB7CsM3uXJuAAfZLrkcJMXxhH4Yl"
+      ],
+      "items": { "type": "string" }
+    },
+    "maxCommentsPerPost": {
+      "title": "Max comments per post",
+      "type": "integer",
+      "description": "Hard cap on rows (top-level + replies) per post. Public posts paginate 10 per request, so 300 costs about 30 requests.",
+      "editor": "number",
+      "unit": "comments",
+      "default": 300,
+      "minimum": 1,
+      "maximum": 1000
+    },
+    "maxPostsPerRun": {
+      "title": "Max posts per run",
+      "type": "integer",
+      "description": "Maximum post URLs processed per run. Results multiply per post. Runs are processed in parallel, see maxConcurrency.",
+      "editor": "number",
+      "unit": "posts",
+      "default": 5,
+      "minimum": 1,
+      "maximum": 100
+    },
+    "maxConcurrency": {
+      "title": "Parallel posts",
+      "type": "integer",
+      "description": "How many posts to walk at the same time. Each post keeps its own cursor and pacing, so 5 parallel posts finish roughly 5x faster than sequential ones.",
+      "editor": "number",
+      "unit": "posts",
+      "default": 5,
+      "minimum": 1,
+      "maximum": 20
+    },
+    "queryMode": {
+      "title": "Query mode",
+      "type": "string",
+      "description": "FRESH_LIST walks the live CommentsListComponentsPaginationQuery (10 per page, no ceiling on public content). LEGACY_TOPLEVEL is the old dusty pager that keeps returning the same 10 comments.",
+      "editor": "select",
+      "default": "FRESH_LIST",
+      "enum": ["FRESH_LIST", "FRESH_LIST_WITH_REPLIES", "LEGACY_TOPLEVEL"],
+      "enumTitles": ["Live list query (recommended)", "Live list + replies", "Legacy TopLevel pager"]
+    },
+    "unionSorts": {
+      "title": "Union sort orders",
+      "type": "boolean",
+      "description": "Walk both the default order and NEWEST, then merge. Measured on a public post: the two windows had zero overlap, so this roughly doubles distinct comments per request.",
+      "editor": "checkbox",
+      "default": true
+    },
+    "commentsSortOrder": {
+      "title": "Comment sort order",
+      "type": "string",
+      "description": "Facebook comment ordering. MOST_RELEVANT keeps the default window, NEWEST switches to reverse chronological, ALL_COMMENTS asks for the unfiltered chronological list.",
+      "editor": "select",
+      "default": "MOST_RELEVANT",
+      "enum": ["MOST_RELEVANT", "NEWEST", "ALL_COMMENTS"],
+      "enumTitles": ["Most relevant", "Newest first", "All comments (unfiltered)"]
+    },
+    "knownCommentIds": {
+      "title": "Known comment IDs",
+      "type": "array",
+      "description": "Comment IDs you already have. They are skipped, so monitoring runs only return new comments.",
+      "editor": "stringList",
+      "items": { "type": "string" }
+    },
+    "knownDatasetId": {
+      "title": "Dataset with known comments",
+      "type": "string",
+      "description": "ID of a previous run dataset. Requires the actor to have permission to read that dataset; if the run logs an insufficient-permissions warning, use dedupeStoreName or knownCommentIds instead.",
+      "editor": "textfield"
+    },
+    "dedupeStoreName": {
+      "title": "Dedupe store name",
+      "type": "string",
+      "description": "Name of a key-value store that remembers delivered comment IDs between runs. Set any stable name (e.g. my-group-monitor) and repeated runs will only return new comments.",
+      "editor": "textfield"
+    },
+    "failOnEmpty": {
+      "title": "Fail on empty result",
+      "type": "boolean",
+      "description": "Mark the run as failed when zero comments were collected. Useful for scheduled monitoring so an empty run is visible instead of silent.",
+      "editor": "checkbox",
+      "default": false
+    },
+    "includePostText": {
+      "title": "Include post text",
+      "type": "boolean",
+      "description": "Copy the post caption into every comment row as post_text. Parsed from the permalink HTML the run already fetches, so it costs no extra requests.",
+      "editor": "checkbox",
+      "default": false
+    },
+    "includeReplies": {
+      "title": "Include replies",
+      "type": "boolean",
+      "description": "Expand reply threads of top-level comments. Replies paginate 10 per page to the end on public content.",
+      "editor": "checkbox",
+      "default": true
+    },
+    "maxReplyThreadsPerPost": {
+      "title": "Reply threads per post",
+      "type": "integer",
+      "description": "How many reply-bearing parent comments to expand, fattest threads first. 0 = replies off.",
+      "editor": "number",
+      "unit": "threads",
+      "default": 20,
+      "minimum": 0,
+      "maximum": 200
+    },
+    "maxRepliesPerPost": {
+      "title": "Max replies per post",
+      "type": "integer",
+      "description": "Hard cap on reply rows per post. Replies count toward maxCommentsPerPost as well.",
+      "editor": "number",
+      "unit": "replies",
+      "default": 200,
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "pageDelayMs": {
+      "title": "Delay between pages (ms)",
+      "type": "integer",
+      "description": "Pause between GraphQL pages. Default 1000 ms is the safest starting point; 200-400 ms has been tested for faster runs.",
+      "editor": "number",
+      "unit": "ms",
+      "default": 1000,
+      "minimum": 200,
+      "maximum": 10000
+    },
+    "maxPagesPerPost": {
+      "title": "Max pages per post",
+      "type": "integer",
+      "description": "Safety stop for the cursor walk. At 10 comments per page, 60 pages covers about 600 comments.",
+      "editor": "number",
+      "unit": "pages",
+      "default": 60,
+      "minimum": 1,
+      "maximum": 200
+    },
+    "introDelayMs": {
+      "title": "Delay after page load (ms)",
+      "type": "integer",
+      "description": "Short settle after fetching the permalink HTML before the first GraphQL call. 0 disables it.",
+      "editor": "number",
+      "unit": "ms",
+      "default": 1500,
+      "minimum": 0,
+      "maximum": 60000
+    },
+    "onlyCommentsNewerThan": {
+      "title": "Only comments newer than",
+      "type": "string",
+      "description": "Keep only comments newer than this. Accepts an absolute date (2026-04-20) or a relative value like 30 days, 12 hours or 2 weeks. Empty = no filter.",
+      "editor": "textfield"
+    },
+    "proxyCountry": {
+      "title": "Proxy country",
+      "type": "string",
+      "description": "Two-letter country code for the residential proxy. US is what the verified runs used.",
+      "editor": "textfield",
+      "default": "US"
+    },
+    "proxyTier": {
+      "title": "Proxy tier",
+      "type": "string",
+      "description": "auto: start on the cheap datacenter pool and switch to residential automatically if Facebook blocks it. datacenter: cheapest. residential: the original behaviour, most conservative.",
+      "editor": "select",
+      "default": "auto",
+      "enum": ["auto", "datacenter", "residential"],
+      "enumTitles": ["Auto (datacenter, fallback to residential)", "Datacenter only", "Residential only"]
+    },
+    "proxyGroups": {
+      "title": "Proxy groups",
+      "type": "array",
+      "description": "Apify proxy groups. RESIDENTIAL is the verified default; DATACENTER is cheaper but more likely to be blocked.",
+      "editor": "stringList",
+      "default": ["RESIDENTIAL"],
+      "items": { "type": "string" }
+    },
+    "minCommentsPerPost": {
+      "title": "Min comments per post",
+      "type": "integer",
+      "description": "Density guard: stop early when the thread is known to be thinner than this. 0 = off.",
+      "editor": "number",
+      "unit": "comments",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "startCursorByPost": {
+      "title": "Continuation cursors by post",
+      "type": "object",
+      "description": "Resume paging from a previous OUTPUT summary. Map post ID to {endCursor}. Never mix cursors across posts.",
+      "editor": "json",
+      "default": {}
+    }
+  },
+  "required": ["postUrls"]
+}

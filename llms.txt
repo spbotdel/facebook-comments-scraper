@@ -1,0 +1,9 @@
+# Facebook Comments Scraper
+
+Apify Actor URL: https://apify.com/spbotdel/facebook-comments-scraper
+
+Scrapes publicly served comments and reply threads from supported Facebook post URLs without cookies or login. One dataset item = one comment or reply: text, author, timestamp, reactions, comment URL, parent linkage, depth, and coverage metadata.
+
+Minimal input: postUrls with one supported public permalink, maxCommentsPerPost 100, maxPostsPerRun 1. Sort modes: MOST_RELEVANT, NEWEST, ALL_COMMENTS. Replies and union sorts are enabled by default for maximum public coverage.
+
+Pricing: $0.0012 per comment or reply for BRONZE and above ($1.20 per 1,000), $0.003 on FREE, plus actor start. Platform usage is paid by the user. Coverage and diagnostics are free in the KV OUTPUT record.

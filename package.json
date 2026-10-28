@@ -1,0 +1,19 @@
+{
+  "name": "facebook-comments-scraper",
+  "version": "0.0.1",
+  "description": "Apify Actor: Facebook post comments via GraphQL",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/main.js",
+    "check": "node --check src/main.js && node --check src/parseComments.js && node --check src/settings.js && node --check src/paging.js && node --check src/charging.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "apify": "^3.4.5",
+    "got-scraping": "^4.1.2"
+  },
+  "devDependencies": {
+    "apify-client": "^2.25.0"
+  }
+}
