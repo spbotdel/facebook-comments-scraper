@@ -1,3 +1,5 @@
+[![Source on GitHub](https://img.shields.io/badge/source-GitHub-24292f)](https://github.com/spbotdel/facebook-comments-scraper)
+
 **Scrape public Facebook post comments and full reply threads without cookies, login, or a browser.**
 
 Facebook Post Comments Scraper turns Facebook post URLs into a clean dataset with one row per public comment or reply. It walks Facebook's comment cursor to the end of the served thread, expands reply threads, preserves parent-child relationships, and reports exactly how much public content was available.
