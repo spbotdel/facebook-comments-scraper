@@ -1,0 +1,10 @@
+.git
+.github
+node_modules
+test
+work
+outputs
+tmp
+*.log
+fresh-build.zip
+push-body.json
