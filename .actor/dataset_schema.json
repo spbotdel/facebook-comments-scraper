@@ -6,29 +6,167 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
-      "source_post_url": { "type": "string" },
-      "source_post_id": { "type": ["string", "null"] },
-      "input_url": { "type": ["string", "null"] },
-      "post_text": { "type": ["string", "null"] },
-      "source_comment_id": { "type": ["string", "null"] },
-      "raw_id": { "type": ["string", "null"] },
-      "decoded_id": { "type": ["string", "null"] },
-      "parent_comment_id": { "type": ["string", "null"] },
-      "depth": { "type": ["integer", "null"] },
-      "author_id": { "type": ["string", "null"] },
-      "author_name": { "type": ["string", "null"] },
-      "author_url": { "type": ["string", "null"] },
-      "author_picture": { "type": ["string", "null"] },
-      "raw_text": { "type": ["string", "null"] },
-      "extracted_urls": { "type": ["array", "null"], "items": { "type": "string" } },
-      "created_time": { "type": ["integer", "null"] },
-      "created_at": { "type": ["string", "null"] },
-      "reactions": { "type": ["integer", "null"] },
-      "likes": { "type": ["integer", "null"] },
-      "reactions_breakdown": { "type": ["object", "null"] },
-      "reply_count": { "type": ["integer", "null"] },
-      "comments_count": { "type": ["integer", "null"] },
-      "comment_url": { "type": ["string", "null"] }
+      "source_post_url": {
+        "type": "string",
+        "description": "Holds the canonical Facebook URL of the post from which the comment was collected."
+      },
+      "source_post_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Identifies the numeric Facebook post ID parsed from the URL or page data, or null when unresolvable."
+      },
+      "input_url": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Preserves the original post URL as supplied in the Actor input before normalization, or null if unavailable."
+      },
+      "post_text": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Provides the text content of the source Facebook post for context, or null when it could not be extracted."
+      },
+      "source_comment_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Carries the comment identifier as exposed in the Facebook permalink or page payload before internal normalization."
+      },
+      "raw_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Contains the unprocessed opaque comment identifier exactly as extracted from Facebook page data."
+      },
+      "decoded_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Gives the decoded numeric comment identifier derived from the raw encoded value for joining and deduplication."
+      },
+      "parent_comment_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "References the decoded identifier of the parent comment for a reply, or null for a top-level comment."
+      },
+      "depth": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Indicates comment nesting level as an integer where 0 means top-level and 1 or higher means a reply."
+      },
+      "author_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Identifies the numeric Facebook user or page ID of the comment author, or null when anonymous or hidden."
+      },
+      "author_name": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Shows the display name of the comment author exactly as rendered on Facebook."
+      },
+      "author_url": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Links to the public Facebook profile or page of the comment author, or null when unavailable."
+      },
+      "author_picture": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Points to the HTTPS URL of the author profile picture thumbnail, or null when not exposed."
+      },
+      "raw_text": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Holds the full plain-text body of the comment as displayed, or null for sticker, attachment-only, or empty comments."
+      },
+      "extracted_urls": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "description": "Lists HTTPS URLs detected inside the comment text as an array of strings, or null when none were found."
+      },
+      "created_time": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Records comment creation time as a Unix timestamp in seconds, or null when Facebook did not expose it."
+      },
+      "created_at": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Expresses comment creation time as an ISO 8601 UTC timestamp string derived from the Unix value, or null when unknown."
+      },
+      "reactions": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Counts the total number of reactions on the comment as an integer."
+      },
+      "likes": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Counts reactions of type Like, retained separately for backward compatibility with like-only consumers."
+      },
+      "reactions_breakdown": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "Maps each Facebook reaction type to its integer count for the comment, or null when breakdown data is unavailable."
+      },
+      "reply_count": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Counts direct replies under this comment as an integer."
+      },
+      "comments_count": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Reports the total comment count of the source post at scrape time for summary context, repeated on comment rows."
+      },
+      "comment_url": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Points to the direct Facebook permalink URL of this specific comment or reply."
+      }
     }
   },
   "views": {
@@ -51,15 +189,38 @@
       "display": {
         "component": "table",
         "properties": {
-          "comment_url": { "label": "Comment URL", "format": "link" },
-          "author_name": { "label": "Author" },
-          "raw_text": { "label": "Comment text" },
-          "created_at": { "label": "Created at", "format": "date" },
-          "reactions": { "label": "Reactions", "format": "number" },
-          "reply_count": { "label": "Replies", "format": "number" },
-          "depth": { "label": "Depth", "format": "number" },
-          "parent_comment_id": { "label": "Parent comment ID" },
-          "post_text": { "label": "Post text" }
+          "comment_url": {
+            "label": "Comment URL",
+            "format": "link"
+          },
+          "author_name": {
+            "label": "Author"
+          },
+          "raw_text": {
+            "label": "Comment text"
+          },
+          "created_at": {
+            "label": "Created at",
+            "format": "date"
+          },
+          "reactions": {
+            "label": "Reactions",
+            "format": "number"
+          },
+          "reply_count": {
+            "label": "Replies",
+            "format": "number"
+          },
+          "depth": {
+            "label": "Depth",
+            "format": "number"
+          },
+          "parent_comment_id": {
+            "label": "Parent comment ID"
+          },
+          "post_text": {
+            "label": "Post text"
+          }
         }
       }
     }
