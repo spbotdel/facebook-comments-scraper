@@ -1,1 +1,18 @@
-{"actorOutputSchemaVersion": 1, "title": "Facebook post comments output", "properties": {"results": {"type": "string", "title": "Dataset items", "template": "{{links.apiDefaultDatasetUrl}}/items"}, "summary": {"type": "string", "title": "Run summary", "template": "{{links.apiKeyValueStoreUrl}}/records/OUTPUT"}}}
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "Facebook post comments output",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Dataset items",
+      "description": "URL of the default dataset with one row per public comment or reply. Open it to download JSON, CSV, or Excel.",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    },
+    "summary": {
+      "type": "string",
+      "title": "Run summary",
+      "description": "URL of the OUTPUT record with per-post totals, announced vs collected counts, coverage, and stop reasons.",
+      "template": "{{links.apiKeyValueStoreUrl}}/records/OUTPUT"
+    }
+  }
+}
