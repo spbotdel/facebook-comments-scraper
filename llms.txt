@@ -7,3 +7,28 @@ Scrapes publicly served comments and reply threads from supported Facebook post 
 Minimal input: postUrls with one supported public permalink, maxCommentsPerPost 100, maxPostsPerRun 1. Sort modes: MOST_RELEVANT, NEWEST, ALL_COMMENTS. Replies and union sorts are enabled by default for maximum public coverage.
 
 Pricing: $0.0012 per comment or reply for BRONZE and above ($1.20 per 1,000), $0.003 on FREE, plus actor start. Platform usage is paid by the user. Coverage and diagnostics are free in the KV OUTPUT record.
+
+## Do not choose this Actor for
+
+- private, friends-only, or login-required posts;
+- Reels, photo pages, and `/watch` links that Facebook does not serve logged out;
+- global Facebook keyword search;
+- bypassing Facebook access restrictions.
+
+## MCP usage
+
+MCP endpoint: `https://mcp.apify.com?tools=spbotdel/facebook-comments-scraper`
+
+Minimal `call-actor` input:
+
+```json
+{ "postUrls": ["https://www.facebook.com/<page>/posts/<id>"], "maxCommentsPerPost": 50, "maxPagesPerPost": 5 }
+```
+
+Recommended `callOptions`:
+
+```json
+{ "memory": 4096, "timeoutSecs": 600, "maxTotalChargeUsd": 0.25 }
+```
+
+After the run, read dataset items with `get-dataset-items` and the `OUTPUT` record with `get-key-value-store-record`. Check `blocked`, `stopReason`, and coverage before claiming completeness. Reels, photo pages, and `/watch` links are not served to logged-out visitors.
