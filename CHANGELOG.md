@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.44 (README + archive hygiene 2026-11-04)
+- Added the public GitHub source badge for `spbotdel/facebook-comments-scraper`; no runtime code changed.
+- Added `.actorignore` so `.git`, tests and local artifacts never enter the Actor archive.
+- Build `0.0.44` published the README to the Apify store page; smoke run `OCDy8RPoUVGKWDWl2` succeeded with two rows.
+
 ## 0.0.43 (pricing + release snapshot 2026-10-27)
 - Actor-start pricing matches the 4096 MB default: $0.003 per started GB with a one-event minimum, i.e. $0.012 per run. README, store listing and platform configuration now show the same numbers.
 - Cloud build 0.0.43 verified: run `OcrUy3imI5NdeQQkU` SUCCEEDED on one group permalink with `maxPagesPerPost: 1` — 1 post, 1 page, 2 comment rows. Input committed as `comments-smoke-two-rows.json`.
