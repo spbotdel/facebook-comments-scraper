@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.45 (agent-readable dataset schema 2026-11-04)
+- All 23 dataset fields documented for agent/MCP use; runtime code unchanged.
+- Build `0.0.45` smoke run `FXPLeuCoIELacNfNK` succeeded with two rows.
+
 ## 0.0.44 (README + archive hygiene 2026-11-04)
 - Added the public GitHub source badge for `spbotdel/facebook-comments-scraper`; no runtime code changed.
 - Added `.actorignore` so `.git`, tests and local artifacts never enter the Actor archive.
