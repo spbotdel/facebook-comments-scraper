@@ -11,8 +11,8 @@
     "summary": {
       "type": "string",
       "title": "Run summary",
-      "description": "URL of the OUTPUT record with per-post totals, announced vs collected counts, coverage, and stop reasons.",
-      "template": "{{links.apiKeyValueStoreUrl}}/records/OUTPUT"
+      "description": "URL of the OUTPUT record with per-post totals, expected vs collected counts, coverage, and stop reasons.",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
     }
   }
 }
