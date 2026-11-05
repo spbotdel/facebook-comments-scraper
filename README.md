@@ -52,6 +52,8 @@ Facebook's displayed total includes comments and replies that are hidden from si
 
 Run from the Console or API, schedule recurring monitoring, configure webhooks, download datasets in multiple formats, and use the same Actor from the Apify MCP server.
 
+Ready-made automation: import the **[new comments -> Slack alerts n8n workflow](docs/N8N_COMMENT_ALERTS.md)**. It reuses Apify's dedupe store, sends one digest per run, and stays silent when there are no new comments.
+
 ## Supported Facebook URLs and public-content limits
 
 | Surface | Without login | Notes |

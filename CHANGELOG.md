@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased - 2026-11-05
+
+- Added importable n8n workflow `docs/n8n/comments-to-slack-alerts.json` for new public comments -> Slack digests, using `dedupeStoreName`, `NEWEST`, replies, a `$0.05` per-run cap, and a bounded poll loop.
+- Added setup guide `docs/N8N_COMMENT_ALERTS.md` and `test/n8n-template.test.js`.
+- Verification: `npm test` 38/38; `npm run check` passed.
+
 ## 0.0.45 (agent-readable dataset schema 2026-11-04)
 - All 23 dataset fields documented for agent/MCP use; runtime code unchanged.
 - Build `0.0.45` smoke run `FXPLeuCoIELacNfNK` succeeded with two rows.
