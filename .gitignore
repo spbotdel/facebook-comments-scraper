@@ -14,6 +14,7 @@ push-body.json
 # Historical probe inputs; canonical smoke inputs are committed below
 comments-*.json
 !comments-smoke-two-rows.json
+!docs/n8n/comments-to-slack-alerts.json
 
 # Secrets
 .env

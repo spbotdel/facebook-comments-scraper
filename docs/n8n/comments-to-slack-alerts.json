@@ -1,0 +1,430 @@
+{
+  "name": "New Facebook Comments -> Slack Alerts",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "comments-schedule",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "post-url",
+              "name": "postUrl",
+              "value": "https://www.facebook.com/humansofnewyork/posts/pfbid0BbKbkisExKGSKuhee9a7i86RwRuMKFC8NSkKStB7CsM3uXJuAAfZLrkcJMXxhH4Yl",
+              "type": "string"
+            },
+            {
+              "id": "max-comments",
+              "name": "maxCommentsPerPost",
+              "value": 100,
+              "type": "number"
+            },
+            {
+              "id": "max-charge",
+              "name": "maxTotalChargeUsd",
+              "value": 0.05,
+              "type": "number"
+            },
+            {
+              "id": "dedupe-store",
+              "name": "dedupeStoreName",
+              "value": "facebook-comment-monitor",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "comments-config",
+      "name": "Configure alert run",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -540,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.apify.com/v2/acts/spbotdel~facebook-comments-scraper/runs?maxTotalChargeUsd={{ $json.maxTotalChargeUsd }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.APIFY_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ postUrls: [$json.postUrl], maxCommentsPerPost: $json.maxCommentsPerPost, maxPostsPerRun: 1, commentsSortOrder: 'NEWEST', onlyCommentsNewerThan: '7 days', dedupeStoreName: $json.dedupeStoreName, failOnEmpty: false, includeReplies: true, maxReplyThreadsPerPost: 20, maxRepliesPerPost: 100, proxyTier: 'auto' }) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "start-comments-run",
+      "name": "Start Apify Comments run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 15,
+        "unit": "seconds"
+      },
+      "id": "wait-for-comments",
+      "name": "Wait 15 seconds",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.apify.com/v2/actor-runs/{{ $json.data.id }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.APIFY_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-comments-run",
+      "name": "Get Apify run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "comments-run-finished",
+              "leftValue": "={{ ['SUCCEEDED', 'FAILED', 'ABORTED', 'TIMED_OUT'].includes($json.data.status) || $runIndex >= 40 }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "comments-run-finished",
+      "name": "Run finished?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        340,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "comments-run-succeeded",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "SUCCEEDED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "comments-run-succeeded",
+      "name": "Succeeded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.apify.com/v2/datasets/{{ $json.data.defaultDatasetId }}/items?clean=true&format=json&limit=1000",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.APIFY_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-comments-dataset",
+      "name": "Get new comments",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map((item) => item.json);\nif (!rows.length) return [];\nconst run = $('Get Apify run').first().json.data;\nconst runLink = run.consoleUrl || `https://console.apify.com/view/runs/${run.id}`;\nconst formatComment = (row) => {\n  const text = String(row.raw_text || '').replace(/\\s+/g, ' ').trim().slice(0, 180);\n  const author = row.author_name || 'Unknown author';\n  const link = row.comment_url ? `<${row.comment_url}|${author}>` : author;\n  return `- ${link}${row.depth > 0 ? ' (reply)' : ''}: ${text || '[non-text comment]'}`;\n};\nconst visible = rows.slice(0, 10).map(formatComment).join('\\n');\nconst more = rows.length > 10 ? `\\n…and ${rows.length - 10} more` : '';\nreturn [{\n  json: {\n    text: `*${rows.length} new Facebook comment(s)*\\n${visible}${more}\\n\\nRun: ${runLink}`\n  }\n}];"
+      },
+      "id": "build-comment-alert",
+      "name": "Build comment alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.text }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "slack-comments",
+      "name": "Slack comment alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1220,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const run = $input.first().json.data;\nconst terminal = ['SUCCEEDED', 'FAILED', 'ABORTED', 'TIMED_OUT'].includes(run.status);\nconst runLink = run.consoleUrl || `https://console.apify.com/view/runs/${run.id}`;\nreturn [{\n  json: {\n    text: `Facebook comments run ${run.id} ${terminal ? `ended with status ${run.status}` : 'did not reach a terminal state before the poll limit'}. Check the Apify run before trusting the monitor.\\n${runLink}`\n  }\n}];"
+      },
+      "id": "build-comments-failure",
+      "name": "Build failure message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.text }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "slack-comments-failure",
+      "name": "Slack failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "Configure alert run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure alert run": {
+      "main": [
+        [
+          {
+            "node": "Start Apify Comments run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Apify Comments run": {
+      "main": [
+        [
+          {
+            "node": "Wait 15 seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 15 seconds": {
+      "main": [
+        [
+          {
+            "node": "Get Apify run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Apify run": {
+      "main": [
+        [
+          {
+            "node": "Run finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run finished?": {
+      "main": [
+        [
+          {
+            "node": "Succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 15 seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Get new comments",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build failure message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get new comments": {
+      "main": [
+        [
+          {
+            "node": "Build comment alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build comment alert": {
+      "main": [
+        [
+          {
+            "node": "Slack comment alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build failure message": {
+      "main": [
+        [
+          {
+            "node": "Slack failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
