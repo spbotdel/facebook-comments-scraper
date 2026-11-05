@@ -8,6 +8,8 @@ Use it for social listening, sentiment analysis, community research, brand monit
 
 Try the ready-made public demo: [Comment thread demo](https://apify.com/spbotdel/facebook-comments-scraper/examples/comment-thread-demo).
 
+**Agent Skill:** use the [facebook-intelligence skill](https://github.com/spbotdel/facebook-intelligence-skill) to route requests across all four spbotdel Facebook Actors through Apify MCP.
+
 ## What can this Facebook comments scraper extract?
 
 - Comment and reply text, unchanged.
