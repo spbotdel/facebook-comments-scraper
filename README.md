@@ -359,49 +359,38 @@ This Actor is commonly used for Facebook comment scraping, Facebook post comment
 
 ## FAQ
 
-### Do I need Facebook cookies or a login?
+### Do I need a Facebook login or cookies to scrape comments?
+No. The actor works signed-out and never asks for your Facebook credentials or cookies. It collects only public comments Facebook serves to visitors without login.
 
-No. This Actor never asks for your Facebook credentials or cookies. It collects only the public content Facebook serves to signed-out visitors.
+### Can it scrape private groups or friends-only posts?
+No. Private groups, friends-only posts, and any login-gated content are out of scope. If Facebook requires login to see the comments, the actor will not bypass it.
 
-### Why did I receive fewer comments than the number shown on Facebook?
+### Why does Facebook show more comments than I get back?
+Facebook's counter includes replies hidden from signed-out visitors, private or filtered comments, and items outside the served feed window. The actor returns the publicly available comments and reports coverage separately instead of passing a partial count off as complete.
 
-Facebook's counter includes comments and replies hidden from signed-out users, private or friends-only comments, filtered content, and items outside the served feed window. The Actor reports the publicly available coverage instead of presenting a partial count as complete.
+### Does it work with Reels, photo pages, and Watch URLs?
+Those URLs are accepted for detection, but Facebook does not serve their comment lists to signed-out visitors. Such runs are marked in the summary as blocked: comment_list_not_served_without_login. Use a public post, group permalink, story.php, or public /videos/ permalink instead.
 
-### Can it scrape private Facebook groups?
+### How many comments can I collect per run?
+You can submit up to 100 post URLs per run. Depth per post is controlled by maxCommentsPerPost and maxPagesPerPost, so raise both if you need deep threads rather than just the first page.
 
-No. Private groups, friends-only posts, and login-gated content are outside the public-source boundary.
+### How do I get replies and avoid missing comments?
+Keep includeReplies and unionSorts enabled, and raise maxReplyThreadsPerPost and maxRepliesPerPost if threads are cut off. Defaults favor coverage, while a low maxCommentsPerPost is the most common reason threads look incomplete.
 
-### Does it work with Reels, photos, and Watch pages?
+### How much does scraping comments cost?
+You pay per result row plus Actor start compute. Paid plans pay 1.20 USD per 1,000 comments and replies, the FREE plan pays 3 USD per 1,000, and start is 0.003 USD per GB, or 0.012 USD at 4 GB. Start cost scales with the memory you allocate.
 
-Those surfaces are accepted for detection, but Facebook does not serve their comment lists to signed-out visitors. The run summary marks them `blocked: comment_list_not_served_without_login`. Use a supported public post, page video, group permalink, `story.php`, or `/videos/` URL instead.
+### How do I monitor only new comments over time?
+Reuse a stable dedupeStoreName across scheduled runs so repeats are skipped. For backfill and polling, add knownCommentIds, knownDatasetId, or onlyCommentsNewerThan, and set failOnEmpty to true if an empty poll should fail visibly.
 
-### How do I maximize the number of comments collected?
+### Where do I find coverage and run summary stats?
+Coverage, counts, blocks, and diagnostics live in the OUTPUT record in the run key-value store, not in the billable default dataset. Check OUTPUT first when validating completeness before exporting rows.
 
-Keep replies enabled, keep `unionSorts` enabled, raise the reply limits, and do not set a low `maxCommentsPerPost`. The Actor's defaults already favor coverage over the smallest possible bill.
+### How do I use it from an AI agent or MCP?
+Use the hosted Apify MCP server: start the run with call-actor, pass runtime and memory settings in callOptions, wait for completion, then read rows with get-dataset-items and read OUTPUT for coverage. Memory in callOptions also raises the start fee. The same input also works through the Apify API, Python and JavaScript clients, Make, Zapier, webhooks, and schedules.
 
-### Can I collect only new comments after the first run?
-
-Yes. Use a stable `dedupeStoreName`; optionally add `knownCommentIds`, `knownDatasetId`, or `onlyCommentsNewerThan`. Set `failOnEmpty: true` if a scheduled run should fail visibly when nothing new is found.
-
-### Does it use a browser?
-
-No. It uses lightweight HTTP requests and Facebook's GraphQL pagination. That keeps runs cheaper and faster than a full browser session while preserving cursor-based depth.
-
-### Can I use it from Python, JavaScript, Make, or an AI agent?
-
-Yes. The Actor is available through the Apify API, Python and JavaScript clients, integrations such as Make and Zapier, webhooks, scheduled runs, and the hosted Apify MCP server.
-
-### Is the result JSON, CSV, or Excel?
-
-The default output is a structured Apify dataset. Export it from the Console or API as JSON, CSV, Excel, HTML, XML, or another supported format.
-
-### What is not counted in the dataset?
-
-Run-level diagnostics and coverage metrics live in the `OUTPUT` key-value store record, not in the billable default dataset.
-
-### Is scraping public Facebook comments legal?
-
-The Actor collects publicly available content only. You are responsible for complying with Facebook's terms, privacy law, and the rules that apply to your use case. Do not use it to access private data or build profiles unlawfully.
+### What format is the output?
+The default is a structured Apify dataset with text, author, date, reactions, URLs, parent and child links, and depth. Export it from Console or API as JSON, CSV, Excel, HTML, XML, or another supported format.
 
 ## Support and disclosures
 
